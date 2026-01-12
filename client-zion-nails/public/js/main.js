@@ -55,7 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Close mobile menu if open
         if (navMenu && navMenu.classList.contains('is-open')) {
           navMenu.classList.remove('is-open');
-          navToggle.setAttribute('aria-expanded', 'false');
+          if (navToggle) {
+            navToggle.setAttribute('aria-expanded', 'false');
+          }
           document.body.style.overflow = '';
         }
         
@@ -85,8 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const header = document.querySelector('.site-header');
   
   if (header) {
-    let lastScroll = 0;
-    
     window.addEventListener('scroll', function() {
       const currentScroll = window.pageYOffset;
       
@@ -96,9 +96,28 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         header.classList.remove('is-scrolled');
       }
-      
-      lastScroll = currentScroll;
     }, { passive: true });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Reveal on Scroll
+  // ---------------------------------------------------------------------------
+  const revealItems = document.querySelectorAll('.reveal');
+  if (revealItems.length) {
+    if ('IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      revealItems.forEach(item => revealObserver.observe(item));
+    } else {
+      revealItems.forEach(item => item.classList.add('is-visible'));
+    }
   }
 
   // ---------------------------------------------------------------------------
